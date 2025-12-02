@@ -1,9 +1,7 @@
 # Claude Code settings
 .claude/
 
-# PyInstaller build artifacts
-_internal/
-*.exe
+# PyInstaller build artifacts (keep _internal/ and *.exe for distribution)
 *.spec
 build/
 dist/
