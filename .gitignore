@@ -1,10 +1,12 @@
 # Claude Code settings
 .claude/
 
-# PyInstaller build artifacts (keep _internal/ and *.exe for distribution)
+# Source code (private)
+src/
+
+# PyInstaller build artifacts
 *.spec
 build/
-dist/
 
 # Python
 __pycache__/
