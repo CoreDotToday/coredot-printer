@@ -27,6 +27,19 @@
 curl -X POST -F "file=@image.png" http://localhost:8000/print-image
 ```
 
+## 개발용 모의 서버 (맥/리눅스)
+
+실서버는 Windows 전용입니다. 맥·리눅스에서 키오스크 앱을 개발할 때는 모의 서버를 사용하세요 (Python 3.9+만 필요):
+
+```bash
+curl -O https://raw.githubusercontent.com/CoreDotToday/coredot-printer/main/dev/printer_mock.py
+python3 printer_mock.py
+```
+
+동일한 API를 제공하며, 인쇄된 이미지는 `./mock-prints/`에 저장되고 자동으로 미리보기가 열립니다.
+`Mock Printer Offline` 프린터로 인쇄하면 실패(job `error`) 케이스를 재현할 수 있습니다.
+옵션: `--port`, `--delay <초>`, `--no-preview`
+
 ## 요구사항
 
 - Windows 10/11

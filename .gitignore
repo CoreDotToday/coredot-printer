@@ -29,3 +29,6 @@ ENV/
 # OS
 .DS_Store
 Thumbs.db
+
+# 모의 서버 인쇄 저장 폴더
+mock-prints/

@@ -74,3 +74,4 @@ Printer selection priority for `/print-image`: request `printer` param > GUI-sel
 - **Error diagnostics**: stdout discarded, stderr → `error.log` next to the exe; `logging` warnings from `app.*` also surface in the GUI log
 - **Build**: Nuitka `--mode=onefile` with `--enable-plugin=tk-inter` and explicit `--include-package` flags (incl. `app`) — adding a new dependency usually requires adding it to `build_release.py`. Do NOT use `--zig`: zig's linker emits a `.pdb` that makes Nuitka onefile builds fail with a FATAL (see `docs/nuitka-customtkinter-guide.md`)
 - **CORS**: wide-open (`allow_origins=["*"]`) for kiosk client access
+- **Mock server contract**: `dev/printer_mock.py` mirrors the real API for mac/linux kiosk developers — update it whenever endpoints or response shapes change
