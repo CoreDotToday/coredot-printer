@@ -3,7 +3,7 @@
 """개발용 모의(mock) 프린터 서버 — 맥/리눅스/윈도우, 표준 라이브러리만 사용.
 
 키오스크 웹앱 개발 시 Windows 전용 실서버 없이 동일한 API를 사용할 수 있다.
-실서버: 코어닷투데이 프린터 API 서버 (엔드포인트 계약 v2.4.0 기준)
+실서버: 코어닷투데이 프린터 API 서버 (엔드포인트 계약 v2.5.0 기준)
 
 ⚠️ 실서버 API(엔드포인트·응답 형식)가 바뀌면 이 파일도 함께 갱신할 것.
 
@@ -14,6 +14,7 @@
     python3 printer_mock.py --no-preview     # 이미지 미리보기 자동 열기 끔
 """
 import argparse
+import base64
 import json
 import os
 import re
@@ -30,6 +31,20 @@ PRINTERS = [
     {"name": PRINTER_OK, "is_default": True},
     {"name": PRINTER_OFFLINE, "is_default": False},
 ]
+
+# 실서버의 감사장 템플릿과 동일한 스키마 (모의)
+TEMPLATES = [{
+    "name": "감사장", "size": "A4", "dpi": 300, "orientation": "portrait",
+    "params": [
+        {"param": "photo", "type": "image", "required": False},
+        {"param": "name", "type": "text", "required": True},
+    ],
+}]
+
+# 미리보기용 placeholder PNG (1x1 회색)
+PLACEHOLDER_PNG = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNsaGj4DwAFhAJ/l6i5FwAAAABJRU5ErkJggg=="
+)
 
 QUEUED, PRINTING, DONE, ERROR = "queued", "printing", "done", "error"
 
@@ -164,6 +179,27 @@ class Handler(BaseHTTPRequestHandler):
                 "default": PRINTER_OK,
                 "count": len(PRINTERS),
             })
+        elif self.path.split("?")[0] == "/templates":
+            self._send_json(200, {"templates": TEMPLATES, "count": len(TEMPLATES)})
+        elif self.path.split("?")[0] == "/preview-template":
+            from urllib.parse import parse_qs, urlparse
+            # BaseHTTPRequestHandler는 요청 라인을 iso-8859-1로 디코드하므로,
+            # curl 등이 퍼센트 인코딩 없이 보낸 UTF-8 바이트(한글 등)는 여기서 복원해야 한다.
+            raw_query = urlparse(self.path).query.encode("iso-8859-1").decode("utf-8", errors="replace")
+            q = parse_qs(raw_query)
+            name = (q.get("template", [""])[0]).strip()
+            if name != "감사장":
+                self._send_json(404, {"detail": f"템플릿을 찾을 수 없습니다: {name}"})
+                return
+            if not (q.get("name", [""])[0]).strip():
+                self._send_json(400, {"detail": "필수 파라미터가 없습니다: name"})
+                return
+            self.send_response(200)
+            self.send_header("Content-Type", "image/png")
+            self.send_header("Content-Length", str(len(PLACEHOLDER_PNG)))
+            self._send_cors_headers()
+            self.end_headers()
+            self.wfile.write(PLACEHOLDER_PNG)
         elif self.path.startswith("/print-jobs/"):
             job_id = self.path[len("/print-jobs/"):]
             with _jobs_lock:
@@ -184,6 +220,8 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(200, {"status": "ok", "message": "5초 후 시스템이 종료됩니다."})
         elif self.path == "/print-image":
             self._handle_print_image()
+        elif self.path == "/print-template":
+            self._handle_print_template()
         else:
             self._send_json(404, {"detail": "Not Found"})
 
@@ -218,6 +256,40 @@ class Handler(BaseHTTPRequestHandler):
             "printer": target_printer, "job_id": job_id,
         })
 
+    def _handle_print_template(self):
+        length = int(self.headers.get("Content-Length", 0))
+        content_type = self.headers.get("Content-Type", "")
+        if "multipart/form-data" not in content_type:
+            self._send_json(400, {"detail": "multipart/form-data 요청이 필요합니다."})
+            return
+        fields = parse_multipart(self.rfile.read(length), content_type)
+
+        template = ""
+        if "template" in fields:
+            template = fields["template"][1].decode("utf-8", errors="replace").strip()
+        if not template:
+            self._send_json(400, {"detail": "template 필드가 필요합니다."})
+            return
+        if template != "감사장":
+            self._send_json(404, {"detail": f"템플릿을 찾을 수 없습니다: {template}"})
+            return
+        if "name" not in fields or not fields["name"][1].decode("utf-8", errors="replace").strip():
+            self._send_json(400, {"detail": "필수 파라미터가 없습니다: name"})
+            return
+
+        printer_field = fields.get("printer")
+        printer = printer_field[1].decode("utf-8", errors="replace").strip() if printer_field else ""
+        target_printer = printer or PRINTER_OK
+        if target_printer not in [p["name"] for p in PRINTERS]:
+            self._send_json(400, {"detail": f"프린터를 찾을 수 없습니다: {target_printer}"})
+            return
+
+        job_id = submit_job(f"{template}.png", target_printer, PLACEHOLDER_PNG, ".png")
+        self._send_json(200, {
+            "status": "queued", "template": template,
+            "printer": target_printer, "job_id": job_id,
+        })
+
     def log_message(self, fmt, *args):
         print(f"[요청] {self.command} {self.path}")
 
@@ -241,6 +313,7 @@ def main():
     print(f"저장 폴더:   ./{PRINT_DIR}/")
     print("엔드포인트:  GET /printers · POST /print-image · GET /print-jobs/{id}")
     print("             GET /health · POST /close-kiosk · POST /shutdown")
+    print("             GET /templates · POST /print-template · GET /preview-template")
     print("종료: Ctrl+C")
     try:
         server.serve_forever()
