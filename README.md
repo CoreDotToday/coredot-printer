@@ -4,11 +4,11 @@
 
 ## 다운로드
 
-[Releases](https://github.com/CoreDotToday/coredot-printer/releases)에서 `프린터서버.exe` 다운로드
+[Releases](https://github.com/CoreDotToday/coredot-printer/releases)에서 `CoreDotPrinter-<버전>.exe` 다운로드
 
 ## 사용법
 
-1. `프린터서버.exe` 실행
+1. `CoreDotPrinter-<버전>.exe` 실행
 2. 프린터 선택
 3. **시작** 클릭
 4. `http://localhost:8000`에서 API 사용
