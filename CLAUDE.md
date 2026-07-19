@@ -32,6 +32,8 @@ python build_release.py
 
 Before a release build, run the manual checklist in `docs/smoke-test.md` on a real Windows machine.
 
+**Release flow**: bump `VERSION` in `src/app/__init__.py` + update `src/app/changelog.py` and `CHANGELOG.md` → build on Windows (`build_release.py` also produces `src/release/CoreDotPrinter-<tag>.exe`) → smoke test → publish from WSL with `scripts/publish_release.sh` (tag = major.minor, notes auto-extracted from `CHANGELOG.md`; `--dry-run` to preview).
+
 Dependencies: `fastapi`, `uvicorn[standard]`, `python-multipart`, `pillow`, `pywin32`, `customtkinter`; build-time: `nuitka`, `ordered-set`.
 
 ## Architecture (v2.4.0)
