@@ -45,6 +45,8 @@ Dependencies: `fastapi`, `uvicorn[standard]`, `python-multipart`, `pillow`, `pyw
 - `jobs.py` — `PrintJobQueue`: single worker thread prints sequentially, tracks job status (`queued/printing/done/error`), guarantees temp-file cleanup; `print_func` injected so it's testable without win32
 - `printing.py` / `autostart.py` — the only win32-dependent modules (printer enum/status/zero-margin printing; HKCU Run registry)
 - `kiosk.py` — Chrome kiosk launch/close (dedicated profile dir under `%LOCALAPPDATA%\CoreDotKiosk`)
+- `template.py` — template JSON load/validate/schema (PIL-free, WSL-testable); user assets in `data/`, bundled in `assets/`
+- `compose.py` — PIL+qrcode renderer (text wrap/shrink, cover/contain images, QR) — same code path for preview and print
 - `api.py` — FastAPI endpoints; pre-validates printer + image and returns 4xx before queueing; owns the GUI-selected-printer state
 - `server.py` — `UvicornServer` background-thread wrapper (`started` property for reliable start detection, join-based `stop`, `/health` access-log filter)
 - `gui.py` — customtkinter launcher; printer status queried in background threads (30s auto-refresh), 1,000-line log ring buffer, server-poll generation tokens
@@ -58,6 +60,9 @@ Legacy files superseded by the package: `main2.py`, `printer_launcher.py`.
 | `GET` | `/printers` | List installed printers + default |
 | `POST` | `/print-image` | Print image (`multipart/form-data`: `file` required, `printer` optional); returns `job_id`; 400 on unknown printer / invalid image |
 | `GET` | `/print-jobs/{job_id}` | Job status: `queued` / `printing` / `done` / `error` |
+| `GET` | `/templates` | List template layouts + parameter schema |
+| `POST` | `/print-template` | Compose and print a template (e.g. certificate) |
+| `GET` | `/preview-template` | Template composition preview (PNG) |
 | `GET` | `/health` | Health check (also used for duplicate-instance detection) |
 | `POST` | `/close-kiosk` | Terminate the kiosk Chrome process |
 | `POST` | `/shutdown` | Shut down Windows (5s delay) |
@@ -74,4 +79,5 @@ Printer selection priority for `/print-image`: request `printer` param > GUI-sel
 - **Error diagnostics**: stdout discarded, stderr → `error.log` next to the exe; `logging` warnings from `app.*` also surface in the GUI log
 - **Build**: Nuitka `--mode=onefile` with `--enable-plugin=tk-inter` and explicit `--include-package` flags (incl. `app`) — adding a new dependency usually requires adding it to `build_release.py`. Do NOT use `--zig`: zig's linker emits a `.pdb` that makes Nuitka onefile builds fail with a FATAL (see `docs/nuitka-customtkinter-guide.md`)
 - **CORS**: wide-open (`allow_origins=["*"]`) for kiosk client access
+- **Template schema**: see `docs/superpowers/specs/2026-07-19-template-printing-design.md`; coordinates in mm, fonts/backgrounds resolved from `data/` first then bundled `assets/`
 - **Mock server contract**: `dev/printer_mock.py` mirrors the real API for mac/linux kiosk developers — update it whenever endpoints or response shapes change

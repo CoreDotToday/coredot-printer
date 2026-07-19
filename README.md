@@ -19,6 +19,9 @@
 |-----------|------|
 | `GET /printers` | 프린터 목록 |
 | `POST /print-image` | 이미지 인쇄 |
+| `GET /templates` | 조판 템플릿 목록 |
+| `POST /print-template` | 템플릿 조판 인쇄 (감사장 등) |
+| `GET /preview-template` | 조판 미리보기 (PNG) |
 | `GET /docs` | API 문서 |
 
 ### 인쇄 예시

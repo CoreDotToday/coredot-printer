@@ -42,3 +42,13 @@
 
 ## 릴리스 노트
 - [ ] 버전 라벨 클릭 → v2.4.0 항목이 태그 색상과 함께 표시
+
+## 템플릿 조판 (v2.5.0)
+- [ ] `GET /templates` → 감사장 템플릿 + 파라미터 스키마(photo/name) 반환
+- [ ] 브라우저에서 `/preview-template?template=감사장&name=홍길동` → 배경+이름 조판 PNG 표시
+- [ ] `POST /print-template` (name=홍길동, photo 파일 첨부) → 실제 인쇄물 = 미리보기와 일치
+- [ ] photo 생략 인쇄 → 사진 없이 정상 인쇄 (required=false)
+- [ ] name 생략 → 400 "필수 파라미터가 없습니다: name"
+- [ ] QR 요소가 있는 템플릿 → 인쇄물의 QR이 휴대폰으로 스캔됨
+- [ ] `data/templates/`의 JSON 수정 → 재요청 시 즉시 반영 (재시작 불필요)
+- [ ] 최초 실행 시 data/ 폴더에 기본 템플릿·배경·폰트 복사됨
