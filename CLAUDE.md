@@ -72,7 +72,7 @@ Printer selection priority for `/print-image`: request `printer` param > GUI-sel
 
 ## Key Implementation Details
 
-- **Versioning**: `VERSION` in `app/__init__.py`, release notes in `app/changelog.py` (`CHANGELOG` list) — update both when releasing; mirror in the outer repo's `CHANGELOG.md`. Current: v2.4.0
+- **Versioning**: `VERSION` in `app/__init__.py`, release notes in `app/changelog.py` (`CHANGELOG` list) — update both when releasing; mirror in the outer repo's `CHANGELOG.md`. Current: v2.5.0
 - **Config keys** (`config.json`): `port`, `printer`, `auto_start`, `saved_urls`, `kiosk_url`, `kiosk_auto_open`, `kiosk_zoom`, `allow_external`
 - **접속 범위**: `allow_external` (default `true`) binds `0.0.0.0` (LAN reachable) vs `127.0.0.1` (same PC only); applied on server (re)start
 - **Zero-margin printing**: negative offsets equal to physical printer margins in device-context draw coordinates (`app/printing.py`); image is stretched to the printable area by design — do not "fix" the aspect ratio
