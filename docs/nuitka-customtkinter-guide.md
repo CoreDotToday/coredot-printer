@@ -97,7 +97,6 @@ def create_labeled_frame(parent, title):
 cmd = [
     sys.executable, "-m", "nuitka",
     "--mode=onefile",                     # 단일 exe 생성
-    "--zig",                              # zig 컴파일러 사용 (빠른 빌드)
     "--windows-console-mode=disable",     # 콘솔 창 비활성화
     "--output-filename=프린터서버.exe",
     "--output-dir=dist",
@@ -152,6 +151,18 @@ cmd.append("printer_server.py")
 - `--include-package=xxx` — 패키지 전체(하위 모듈 포함) 번들
 - `--include-module=xxx` — 특정 모듈 하나만 번들
 - pywin32 계열(`win32print`, `win32ui` 등)은 패키지 구조가 아니므로 `--include-module` 사용
+
+### zig 컴파일러(`--zig`)를 쓰지 않는 이유
+
+한때 빌드 속도를 위해 `--zig`를 사용했으나, **zig cc가 Windows 링킹 시 `.pdb` 파일을 함께 생성**하고
+Nuitka(4.x)가 onefile 부트스트랩 링킹 중 예상 밖 `.pdb`를 발견하면 다음 FATAL로 빌드가 실패한다:
+
+```
+FATAL: Error, unwanted '.pdb' file '...\dist\_nuitka_temp.pdb' was created during the build. Report the bug.
+```
+
+`--zig`를 제거하면 MSVC(설치 시) 또는 MinGW64(최초 1회 자동 다운로드 후 캐시)가 사용되며 onefile과 완전 호환된다.
+빌드 중 "Is it OK to download ... Proceed and download?" 프롬프트가 나오면 MinGW64 다운로드이므로 Yes로 진행하면 된다.
 
 ### Nuitka vs PyInstaller
 

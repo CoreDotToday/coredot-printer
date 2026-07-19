@@ -70,5 +70,5 @@ Printer selection priority for `/print-image`: request `printer` param > GUI-sel
 - **접속 범위**: `allow_external` (default `true`) binds `0.0.0.0` (LAN reachable) vs `127.0.0.1` (same PC only); applied on server (re)start
 - **Zero-margin printing**: negative offsets equal to physical printer margins in device-context draw coordinates (`app/printing.py`); image is stretched to the printable area by design — do not "fix" the aspect ratio
 - **Error diagnostics**: stdout discarded, stderr → `error.log` next to the exe; `logging` warnings from `app.*` also surface in the GUI log
-- **Build**: Nuitka `--mode=onefile --zig` with `--enable-plugin=tk-inter` and explicit `--include-package` flags (incl. `app`) — adding a new dependency usually requires adding it to `build_release.py` (see `docs/nuitka-customtkinter-guide.md`)
+- **Build**: Nuitka `--mode=onefile` with `--enable-plugin=tk-inter` and explicit `--include-package` flags (incl. `app`) — adding a new dependency usually requires adding it to `build_release.py`. Do NOT use `--zig`: zig's linker emits a `.pdb` that makes Nuitka onefile builds fail with a FATAL (see `docs/nuitka-customtkinter-guide.md`)
 - **CORS**: wide-open (`allow_origins=["*"]`) for kiosk client access
