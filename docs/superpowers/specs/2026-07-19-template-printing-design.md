@@ -22,7 +22,7 @@
   "elements": [
     {"type": "image", "param": "photo", "box_mm": [24.3, 65.6, 49.0, 53.3],
      "fit": "cover", "border": {"width_mm": 1.0, "color": "#000000"}, "required": false},
-    {"type": "text", "param": "name", "box_mm": [7.1, 105.8, 176.4, 123.5],
+    {"type": "text", "param": "name", "box_mm": [7.1, 105.8, 169.3, 17.6],
      "font": "nanum.ttf", "size_pt": 24, "color": "#000000",
      "align": "center", "valign": "middle", "required": true},
     {"type": "qr", "param": "qr_data", "box_mm": [170, 260, 25, 25],
@@ -80,8 +80,10 @@ data/
 
 ## 5. kogongjang 마이그레이션
 
-- kogongjang `config.json`의 pt 좌표(name_x/y/width/height, 사진 박스 (69,186,208,337)pt)를
-  mm로 변환(`pt × 25.4 / 72`)한 감사장 템플릿 JSON을 기본 제공
+- kogongjang `config.json`의 pt 좌표를 mm로 변환(`pt × 25.4 / 72`)한 감사장 템플릿 JSON을 기본 제공.
+  **주의**: kogongjang의 `name_width`/`name_height`는 폭·높이가 아니라 **x2/y2 끝좌표**다
+  (app.py에서 `w = name_width - name_x`, `h = name_height - name_y`로 사용) —
+  텍스트 박스는 (20,300)~(500,350)pt = mm로 [7.1, 105.8, 169.3, 17.6]. 사진 박스는 fitz.Rect(x1,y1,x2,y2)
 - kogongjang-print 저장소는 아카이브 (이 스펙 범위 밖, 사용자 판단)
 - 포트는 8000 단일화. `/preview`(HTML)·`/test`(PDF)·`/quit` 등 kogongjang 전용 라우트는 계승하지 않음
 
