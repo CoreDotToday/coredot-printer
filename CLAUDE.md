@@ -49,7 +49,7 @@ Dependencies: `fastapi`, `uvicorn[standard]`, `python-multipart`, `pillow`, `pyw
 - `compose.py` — PIL+qrcode renderer (text wrap/shrink, cover/contain images, QR) — same code path for preview and print
 - `api.py` — FastAPI endpoints; pre-validates printer + image and returns 4xx before queueing; owns the GUI-selected-printer state
 - `server.py` — `UvicornServer` background-thread wrapper (`started` property for reliable start detection, join-based `stop`, `/health` access-log filter)
-- `gui.py` — customtkinter launcher; printer status queried in background threads (30s auto-refresh), 1,000-line log ring buffer, server-poll generation tokens; tabbed UI ([서버]/[키오스크]/[템플릿]) with server-independent template preview/test-print
+- `gui.py` — customtkinter launcher; printer status queried in background threads (30s auto-refresh), 1,000-line log ring buffer, server-poll generation tokens; tabbed UI ([기본]=server+kiosk on one screen / [템플릿]) with server-independent template preview/test-print
 
 Legacy files superseded by the package: `main2.py`, `printer_launcher.py`.
 
