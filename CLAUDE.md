@@ -49,7 +49,7 @@ Dependencies: `fastapi`, `uvicorn[standard]`, `python-multipart`, `pillow`, `pyw
 - `compose.py` — PIL+qrcode renderer (text wrap/shrink, cover/contain images, QR) — same code path for preview and print
 - `api.py` — FastAPI endpoints; pre-validates printer + image and returns 4xx before queueing; owns the GUI-selected-printer state
 - `server.py` — `UvicornServer` background-thread wrapper (`started` property for reliable start detection, join-based `stop`, `/health` access-log filter)
-- `gui.py` — customtkinter launcher; printer status queried in background threads (30s auto-refresh), 1,000-line log ring buffer, server-poll generation tokens
+- `gui.py` — customtkinter launcher; printer status queried in background threads (30s auto-refresh), 1,000-line log ring buffer, server-poll generation tokens; tabbed UI ([서버]/[키오스크]/[템플릿]) with server-independent template preview/test-print
 
 Legacy files superseded by the package: `main2.py`, `printer_launcher.py`.
 
@@ -72,7 +72,7 @@ Printer selection priority for `/print-image`: request `printer` param > GUI-sel
 
 ## Key Implementation Details
 
-- **Versioning**: `VERSION` in `app/__init__.py`, release notes in `app/changelog.py` (`CHANGELOG` list) — update both when releasing; mirror in the outer repo's `CHANGELOG.md`. Current: v2.5.0
+- **Versioning**: `VERSION` in `app/__init__.py`, release notes in `app/changelog.py` (`CHANGELOG` list) — update both when releasing; mirror in the outer repo's `CHANGELOG.md`. Current: v2.6.0
 - **Config keys** (`config.json`): `port`, `printer`, `auto_start`, `saved_urls`, `kiosk_url`, `kiosk_auto_open`, `kiosk_zoom`, `allow_external`
 - **접속 범위**: `allow_external` (default `true`) binds `0.0.0.0` (LAN reachable) vs `127.0.0.1` (same PC only); applied on server (re)start
 - **Zero-margin printing**: negative offsets equal to physical printer margins in device-context draw coordinates (`app/printing.py`); image is stretched to the printable area by design — do not "fix" the aspect ratio
