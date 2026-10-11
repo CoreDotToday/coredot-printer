@@ -17,12 +17,17 @@
 
 | 엔드포인트 | 설명 |
 |-----------|------|
+| `GET /health` | 상태·버전 확인 |
 | `GET /printers` | 프린터 목록 |
-| `POST /print-image` | 이미지 인쇄 |
+| `POST /print-image` | 이미지 인쇄 (`job_id` 반환) |
+| `GET /print-jobs/{job_id}` | 인쇄 작업 상태 |
 | `GET /templates` | 조판 템플릿 목록 |
 | `POST /print-template` | 템플릿 조판 인쇄 (감사장 등) |
 | `GET /preview-template` | 조판 미리보기 (PNG) |
+| `POST /close-kiosk`, `POST /shutdown` | 키오스크·시스템 제어 (기본: 같은 PC만) |
 | `GET /docs` | API 문서 |
+
+자세한 사용법·설정·문제 해결은 [help.md](help.md) 참고.
 
 ### 인쇄 예시
 
@@ -47,6 +52,10 @@ python3 printer_mock.py
 
 - Windows 10/11
 - 프린터 드라이버 설치
+
+## 소스
+
+소스 코드는 비공개 저장소 [coredot-printer-src](https://github.com/CoreDotToday/coredot-printer-src)에서 관리합니다 (이 저장소의 `src/`에 체크아웃).
 
 ---
 

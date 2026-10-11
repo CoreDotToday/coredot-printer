@@ -25,6 +25,8 @@ import uuid
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+MOCK_VERSION = "2.8.0-mock"   # /health의 version — 실서버는 실제 앱 버전을 돌려준다
+
 PRINTER_OK = "Mock Printer"
 PRINTER_OFFLINE = "Mock Printer Offline"
 PRINTERS = [
@@ -33,8 +35,9 @@ PRINTERS = [
 ]
 
 # 실서버의 감사장 템플릿과 동일한 스키마 (모의)
+# id = 파일명 스템(= template 파라미터 값), name = 표시용 이름
 TEMPLATES = [{
-    "name": "감사장", "size": "A4", "dpi": 300, "orientation": "portrait",
+    "id": "감사장", "name": "감사장", "size": "A4", "dpi": 300, "orientation": "portrait",
     "params": [
         {"param": "photo", "type": "image", "required": False},
         {"param": "name", "type": "text", "required": True},
@@ -172,7 +175,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == "/health":
-            self._send_json(200, {"status": "ok"})
+            self._send_json(200, {"status": "ok", "app": "coredot-printer", "version": MOCK_VERSION})
         elif self.path == "/printers":
             self._send_json(200, {
                 "printers": PRINTERS,
@@ -213,6 +216,9 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(404, {"detail": "Not Found"})
 
     def do_POST(self):
+        # 실서버는 allow_remote_control(기본 꺼짐)이면 같은 PC(루프백) 요청만 허용하고
+        # 다른 기기에서 오면 403 {"detail": "원격 제어가 허용되지 않았습니다 ..."}를 돌려준다.
+        # 모의 서버는 개발 편의상 항상 허용한다.
         if self.path == "/close-kiosk":
             self._send_json(200, {"status": "no_process"})
         elif self.path == "/shutdown":
